@@ -21,35 +21,27 @@ describe('add todo', function () {
       const expectInputContent = await page.evaluate(todoList => todoList.lastChild.querySelector('label').textContent, todoList);
       expect(expectInputContent).to.eql('new todo item');
     }) 
-    it('render all item', async function(){
-      let todoList = await page.waitFor('#todoList');
+    it('should get the length',async function(){
+      let todoList = await page.waitFor('#todo-list');
+      const length=await page.evaluate(todoList => todoList.children.length, todoList);
+      expect(length).to.eql(7);
+    })
+    it('should completed the todo item',async function(){
+      //item left数量
+      let left_count1=await page.evaluate(()=>{
+        let count=document.querySelector("strong").innerText;
+        return count;
+      })
+      console.log(left_count1)
+      await page.click('#todo-list > li:nth-child(1) > div > input',{delay:500});
+      let todoList = await page.waitFor('#todo-list');
+      let left_count2 = await page.evaluate(todoList => document.querySelector("strong").innerText, todoList);
+      console.log(left_count2)
+      left_count1=parseInt(left_count1)-1;
+      left_count2=parseInt(left_count2);
+      expect(left_count1).to.eql(left_count2);
       
-      const flag = await page.evaluate(function(todoList){
-        if(todoList.childNodes.item(0).textContent == 'React practice' && todoList.childNodes.item(1).textContent == 'game time'){
-          return true;
-        }else{
-          return false;
-        }
-      }, todoList);
-      expect(flag).to.eql(true);
-  })
-  it('do it', async function(){
-    await page.click('#testContext', {delay:500});
-    let todoList = await page.waitFor('#todoList');
-    const realStatus = await page.evaluate(function(todoList){
-      return todoList.lastChild.className;
-    },todoList)
-    expect(realStatus).to.eql('done-item');
-  })
-
-  it('undo it', async function(){
-    await page.click('#testContext', {delay:500});
-    let todoList = await page.waitFor('#todoList');
-    const realStatus = await page.evaluate(function(todoList){
-      return todoList.lastChild.className;
-    },todoList)
-    expect(realStatus).to.eql('item');
-  })
+    })
 
 
   });
